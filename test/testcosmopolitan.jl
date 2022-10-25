@@ -27,9 +27,9 @@
         println("5x5 times table:")
         status = -1
         try
-            status = run(`./times_table 5 5`)
+            status = run(`$(scratch)/times_table.com 5 5`)
         catch e
-            @warn "Could not run $(scratch)/times_table"
+            @warn "Could not run $(scratch)/times_table.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -58,9 +58,9 @@
         println("3x3 malloc arrays via do-block syntax:")
         status = -1
         try
-            status = run(`./withmallocarray 3 3`)
+            status = run(`$(scratch)/withmallocarray.com 3 3`)
         catch e
-            @warn "Could not run $(scratch)/withmallocarray"
+            @warn "Could not run $(scratch)/withmallocarray.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -85,9 +85,9 @@
         println("5x5 uniform random matrix:")
         status = -1
         try
-            status = run(`./rand_matrix 5 5`)
+            status = run(`$(scratch)/rand_matrix.com 5 5`)
         catch e
-            @warn "Could not run $(scratch)/rand_matrix"
+            @warn "Could not run $(scratch)/rand_matrix.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -113,9 +113,9 @@
         println("5x5 Normal random matrix:")
         status = -1
         try
-            status = run(`./randn_matrix 5 5`)
+            status = run(`$(scratch)/randn_matrix.com 5 5`)
         catch e
-            @warn "Could not run $(scratch)/randn_matrix"
+            @warn "Could not run $(scratch)/randn_matrix.com"
             println(e)
         end
         @static if Sys.isbsd()
@@ -143,9 +143,9 @@
             println("10x10 table sum:")
             status = -1
             try
-                status = run(`./loopvec_product 10 10`)
+                status = run(`$(scratch)/loopvec_product.com 10 10`)
             catch e
-                @warn "Could not run $(scratch)/loopvec_product"
+                @warn "Could not run $(scratch)/loopvec_product.com"
                 println(e)
             end
             @test isa(status, Base.Process)
@@ -171,9 +171,9 @@
         println("10x5 matrix product:")
         status = -1
         try
-            status = run(`./loopvec_matrix 10 5`)
+            status = run(`$(scratch)/loopvec_matrix.com 10 5`)
         catch e
-            @warn "Could not run $(scratch)/loopvec_matrix"
+            @warn "Could not run $(scratch)/loopvec_matrix.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -202,9 +202,9 @@
         println("10x5 matrix product:")
         status = -1
         try
-            status = run(`./loopvec_matrix_stack`)
+            status = run(`$(scratch)/loopvec_matrix_stack.com`)
         catch e
-            @warn "Could not run $(scratch)/loopvec_matrix_stack"
+            @warn "Could not run $(scratch)/loopvec_matrix_stack.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -233,9 +233,9 @@
         println("String indexing and handling:")
         status = -1
         try
-            status = run(`./print_args foo bar`)
+            status = run(`$(scratch)/print_args.com foo bar`)
         catch e
-            @warn "Could not run $(scratch)/print_args"
+            @warn "Could not run $(scratch)/print_args.com"
             println(e)
         end
         @test isa(status, Base.Process)
@@ -262,9 +262,9 @@
         println("Interop:")
         status = -1
         try
-            status = run(`./interop`)
+            status = run(`$(scratch)/interop.com`)
         catch e
-            @warn "Could not run $(scratch)/interop"
+            @warn "Could not run $(scratch)/interop.com"
             println(e)
         end
         @test isa(status, Base.Process)

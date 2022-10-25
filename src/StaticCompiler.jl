@@ -579,7 +579,7 @@ function compile_cosmopolitan(f, types=(), path::String="./", name=GPUCompiler.s
     tt = Base.to_tuple_type(types)
     rt = only(native_code_typed(f, tt))[2]
     isconcretetype(rt) || error("$f$types did not infer to a concrete type. Got $rt")
-    generate_cosmopolitan(f, tt, path, name, filename; objcopy, gcc, cflags, kwargs...)
+    path, filename = generate_cosmopolitan(f, tt, path, name, filename; objcopy, gcc, cflags, kwargs...)
     joinpath(abspath(path), filename)
 end
 
@@ -620,13 +620,13 @@ function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_nam
       -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
       $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
 
-     run(`$objcopy -S -O binary $(exec_path*".dbg") $exec_path`)
+    run(`$objcopy -S -O binary $(exec_path*".dbg") $(exec_path*".com")`)
 
     # Clean up intermediate files
-     run(`rm $(exec_path*".dbg")`)
-     run(`rm $wrapper_path`)
+    run(`rm $(exec_path*".dbg")`)
+    run(`rm $wrapper_path`)
 
-    path, name
+    path, filename*".com"
 end
 
 end # module

@@ -10,7 +10,7 @@ using Serialization: serialize, deserialize
 using Clang_jll: clang
 using LazyArtifacts
 
-export compile, load_function, compile_shlib, compile_executable
+export compile, load_function, compile_shlib, compile_executable, compile_cosmopolitan
 export native_code_llvm, native_code_typed, native_llvm_module, native_code_native
 
 include("target.jl")
@@ -623,7 +623,7 @@ function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_nam
      run(`$objcopy -S -O binary $(exec_path*".dbg") $exec_path`)
 
     # Clean up intermediate files
-     run(`rm $exec_path*".dbg"`)
+     run(`rm $(exec_path*".dbg")`)
      run(`rm $wrapper_path`)
 
     path, name

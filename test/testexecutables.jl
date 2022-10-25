@@ -2,7 +2,8 @@
 @testset "Standalone Executable Integration" begin
     # Setup
     testpath = pwd()
-    scratch = tempdir()
+    scratch = joinpath(tempdir(), "scratch")
+    mkpath(scratch)
     cd(scratch)
     jlpath = joinpath(Sys.BINDIR, Base.julia_exename()) # Get path to julia executable
 
@@ -275,4 +276,6 @@
     ## --- Clean up
 
     cd(testpath)
+    rm(scratch; recursive=true)
+
 end

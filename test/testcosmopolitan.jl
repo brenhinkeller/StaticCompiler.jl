@@ -1,8 +1,9 @@
 
-@testset "Standalone Executable Integration" begin
+@testset "Cosmopolitan Executable Integration" begin
     # Setup
     testpath = pwd()
-    scratch = tempdir()
+    scratch = joinpath(tempdir(), "scratch")
+    mkpath(scratch)
     cd(scratch)
     jlpath = joinpath(Sys.BINDIR, Base.julia_exename()) # Get path to julia executable
 
@@ -27,13 +28,13 @@
         println("5x5 times table:")
         status = -1
         try
-            status = run(`$(scratch)/times_table.com 5 5`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./times_table.com 5 5")
         catch e
             @warn "Could not run $(scratch)/times_table.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
         # Test ascii output
         @test parsedlm(Int, c"table.tsv", '\t') == (1:5)*(1:5)'
         # Test binary output
@@ -58,13 +59,13 @@
         println("3x3 malloc arrays via do-block syntax:")
         status = -1
         try
-            status = run(`$(scratch)/withmallocarray.com 3 3`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./withmallocarray.com 3 3")
         catch e
             @warn "Could not run $(scratch)/withmallocarray.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
     end
 
     ## --- Random number generation
@@ -85,13 +86,13 @@
         println("5x5 uniform random matrix:")
         status = -1
         try
-            status = run(`$(scratch)/rand_matrix.com 5 5`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./rand_matrix.com 5 5")
         catch e
             @warn "Could not run $(scratch)/rand_matrix.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
     end
 
     let
@@ -113,14 +114,14 @@
         println("5x5 Normal random matrix:")
         status = -1
         try
-            status = run(`$(scratch)/randn_matrix.com 5 5`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./randn_matrix.com 5 5")
         catch e
             @warn "Could not run $(scratch)/randn_matrix.com"
             println(e)
         end
         @static if Sys.isbsd()
-            @test isa(status, Base.Process)
-            @test isa(status, Base.Process) && status.exitcode == 0
+            @test status === Int32(0)
         end
     end
 
@@ -143,13 +144,13 @@
             println("10x10 table sum:")
             status = -1
             try
-                status = run(`$(scratch)/loopvec_product.com 10 10`)
+                StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./loopvec_product.com 10 10")
             catch e
                 @warn "Could not run $(scratch)/loopvec_product.com"
                 println(e)
             end
-            @test isa(status, Base.Process)
-            @test isa(status, Base.Process) && status.exitcode == 0
+            @test status === Int32(0)
             @test parsedlm(c"product.tsv",'\t')[] == 3025
         end
     end
@@ -171,13 +172,13 @@
         println("10x5 matrix product:")
         status = -1
         try
-            status = run(`$(scratch)/loopvec_matrix.com 10 5`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./loopvec_matrix.com 10 5")
         catch e
             @warn "Could not run $(scratch)/loopvec_matrix.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
         A = (1:10) * (1:5)'
         # Check ascii output
         @test parsedlm(c"table.tsv",'\t') == A' * A
@@ -202,13 +203,13 @@
         println("10x5 matrix product:")
         status = -1
         try
-            status = run(`$(scratch)/loopvec_matrix_stack.com`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./loopvec_matrix_stack.com")
         catch e
             @warn "Could not run $(scratch)/loopvec_matrix_stack.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
         A = (1:10) * (1:5)'
         @test parsedlm(c"table.tsv",'\t') == A' * A
     end
@@ -233,13 +234,13 @@
         println("String indexing and handling:")
         status = -1
         try
-            status = run(`$(scratch)/print_args.com foo bar`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./print_args.com foo bar")
         catch e
             @warn "Could not run $(scratch)/print_args.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
     end
 
     ## --- Test interop
@@ -262,17 +263,18 @@
         println("Interop:")
         status = -1
         try
-            status = run(`$(scratch)/interop.com`)
+            StaticTools.system(c"ls -alh")
+            status = StaticTools.system(c"bash ./interop.com")
         catch e
             @warn "Could not run $(scratch)/interop.com"
             println(e)
         end
-        @test isa(status, Base.Process)
-        @test isa(status, Base.Process) && status.exitcode == 0
+        @test status === Int32(0)
     end
     end
 
     ## --- Clean up
-
     cd(testpath)
+    rm(scratch; recursive=true)
+
 end

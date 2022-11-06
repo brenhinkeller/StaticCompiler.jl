@@ -562,7 +562,7 @@ end
 compile_cosmopolitan(f, types::Tuple, path::String, name::String=repr(f);
     filename = name,
     objcopy = `objcopy`,
-    gcc = `gcc`,
+    cc = `cc`,
     cflags = ``,
     kwargs...
 )
@@ -572,20 +572,20 @@ As `compile_executable`, but generating a [cosmopolitan executable](https://just
 function compile_cosmopolitan(f, types=(), path::String="./", name=GPUCompiler.safe_name(repr(f));
         filename=name,
         objcopy = `objcopy`,
-        gcc = `gcc`,
+        cc = `cc`,
         cflags = ``,
         kwargs...
     )
     tt = Base.to_tuple_type(types)
     rt = only(native_code_typed(f, tt))[2]
     isconcretetype(rt) || error("$f$types did not infer to a concrete type. Got $rt")
-    path, filename = generate_cosmopolitan(f, tt, path, name, filename; objcopy, gcc, cflags, kwargs...)
+    path, filename = generate_cosmopolitan(f, tt, path, name, filename; objcopy, cc, cflags, kwargs...)
     joinpath(abspath(path), filename)
 end
 
 function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_name(repr(f)), filename=string(name);
         objcopy = `objcopy`,
-        gcc = `gcc`,
+        cc = `cc`,
         cflags = ``,
         kwargs...
     )
@@ -613,12 +613,47 @@ function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_nam
     }""")
     close(f)
 
+    # COSMOPOLITAN_CFLAGS="\
+    #   -static \
+    #   -nostdinc \
+    #   -nostdlib \
+    #   -D__STDC_NO_THREADS__ \
+    #   -isysroot '$(artifact"cosmopolitan")' \
+    #   -fno-omit-frame-pointer \
+    #   -fno-pie \
+    #   -gdwarf-4 \
+    #   -mno-red-zone \
+    #   -mno-tls-direct-seg-refs"
+    #
+    # COSMOPOLITAN_LDFLAGS="\
+    #   -fuse-ld=bfd \
+    #   -gdwarf-4 \
+    #   -no-pie \
+    #   -nostdlib \
+    #   -Wl,-T,'$(artifact"cosmopolitan/ape.lds")' \
+    #   -Wl,--gc-sections"
+    #
+    # COSMOPOLITAN_OBJECTS="\
+    #   -Wl,'$(artifact"cosmopolitan/crt.o")' \
+    #   -Wl,'$(artifact"cosmopolitan/ape-no-modify-self.o")' \
+    #   -Wl,'$(artifact"cosmopolitan/cosmopolitan.a")'"
+
+    # run(`$cc $cflags $COSMOPOLITAN_CFLAGS $wrapper_path -o $(exec_path*".dbg") \
+    #   $COSMOPOLITAN_LDFLAGS -include $obj_path $COSMOPOLITAN_OBJECTS`)
+
     # Compile
-    run(`$gcc $cflags -g -Os -static -nostdlib -nostdinc -fno-pie -no-pie -mno-red-zone \
-      -fno-omit-frame-pointer -pg -mnop-mcount -mno-tls-direct-seg-refs -gdwarf-4 \
+    # run(`$cc $cflags -g -Os -static -nostdlib -nostdinc -fno-pie -no-pie -mno-red-zone \
+    #   -fno-omit-frame-pointer -pg -mnop-mcount -mno-tls-direct-seg-refs -gdwarf-4 \
+    #   $wrapper_path -o $(exec_path*".dbg") -fuse-ld=bfd -Wl,-T,$(artifact"cosmopolitan/ape.lds") -Wl,--gc-sections \
+    #   -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
+    #   $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
+
+    run(`$cc $cflags -g -Os -static -nostdlib -nostdinc -fno-pie -no-pie -mno-red-zone \
+      -fno-omit-frame-pointer -mno-tls-direct-seg-refs -gdwarf-4 \
       $wrapper_path -o $(exec_path*".dbg") -fuse-ld=bfd -Wl,-T,$(artifact"cosmopolitan/ape.lds") -Wl,--gc-sections \
       -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
       $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
+
 
     run(`$objcopy -S -O binary $(exec_path*".dbg") $(exec_path*".com")`)
 

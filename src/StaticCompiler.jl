@@ -572,7 +572,7 @@ As `compile_executable`, but generating a [cosmopolitan executable](https://just
 function compile_cosmopolitan(f, types=(), path::String="./", name=GPUCompiler.safe_name(repr(f));
         filename=name,
         objcopy = `objcopy`,
-        cc = `cc`,
+        cc = clang(),
         cflags = ``,
         kwargs...
     )
@@ -648,10 +648,9 @@ function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_nam
     #   -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
     #   $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
 
-    cc = clang()
     run(`$cc $cflags -g -Os -static -nostdlib -nostdinc -fno-pie -no-pie -mno-red-zone \
       -fno-omit-frame-pointer -mno-tls-direct-seg-refs -gdwarf-4 \
-      $wrapper_path -o $(exec_path*".dbg") -fuse-ld=bfd -Wl,-T,$(artifact"cosmopolitan/ape.lds") -Wl,--gc-sections \
+      $wrapper_path -o $(exec_path*".dbg") -Wl,-T,$(artifact"cosmopolitan/ape.lds") -Wl,--gc-sections \
       -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
       $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
 

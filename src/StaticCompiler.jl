@@ -648,6 +648,7 @@ function generate_cosmopolitan(f, tt, path=tempname(), name=GPUCompiler.safe_nam
     #   -include $(artifact"cosmopolitan/cosmopolitan.h") $obj_path $(artifact"cosmopolitan/crt.o") \
     #   $(artifact"cosmopolitan/ape-no-modify-self.o") $(artifact"cosmopolitan/cosmopolitan.a")`)
 
+    cc = clang()
     run(`$cc $cflags -g -Os -static -nostdlib -nostdinc -fno-pie -no-pie -mno-red-zone \
       -fno-omit-frame-pointer -mno-tls-direct-seg-refs -gdwarf-4 \
       $wrapper_path -o $(exec_path*".dbg") -fuse-ld=bfd -Wl,-T,$(artifact"cosmopolitan/ape.lds") -Wl,--gc-sections \
